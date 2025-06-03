@@ -22,7 +22,23 @@ spec:
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
 metadata:
-  name: staging
+  name: promote-dev
+  namespace: kargo-simple
+  annotations:
+    kargo.akuity.io/color: red
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: guestbook
+    sources:
+      - dev
+
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: qa-b1a
   namespace: kargo-simple
   annotations:
     kargo.akuity.io/color: amber
@@ -33,7 +49,29 @@ spec:
       name: guestbook
     sources:
       stages:
-      - dev
+      - promote-dev
+  promotionTemplate:
+    spec:
+      steps:
+      - task:
+          name: promote
+
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: qa-b135
+  namespace: kargo-simple
+  annotations:
+    kargo.akuity.io/color: amber
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: guestbook
+    sources:
+      stages:
+      - promote-dev
   promotionTemplate:
     spec:
       steps:
